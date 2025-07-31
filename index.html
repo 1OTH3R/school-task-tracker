@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Homework Tracker - Liquid Glass Style</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(#e0eafc, #bacae0);
+    background-repeat: no-repeat;
+    background-color: #bacae0;
+    min-height: 100%;
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #004d99;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+  form {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  input[type=text], select {
+    flex: 1 1 auto;
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    color: #004d99;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.4);
+    transition: background 0.3s ease;
+  }
+  input[type=text]:focus, select:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.5);
+  }
+  button {
+    padding: 0.6rem 1.1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background: rgba(0, 77, 153, 0.7);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 77, 153, 0.5);
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: rgba(0, 77, 153, 0.9);
+  }
+  ul#task-list {
+    list-style: none;
+    padding-left: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 0.8rem 1rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  ul#task-list li {
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    padding: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.7);
+    transition: background 0.3s ease;
+  }
+  ul#task-list li.completed {
+    background: rgba(200, 230, 255, 0.3);
+  }
+  ul#task-list li.completed span.task-text {
+    text-decoration: line-through;
+    color: #005999;
+  }
+  span.task-text {
+    flex-grow: 1;
+    margin-left: 0.6rem;
+    color: #003366;
+  }
+  .subject-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    background: rgba(0, 77, 153, 0.3);
+    border-radius: 6px;
+    margin-left: 0.7rem;
+    color: #002244;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+    user-select: none;
+  }
+  .filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .filters > * {
+    flex: 1 1 45%;
+  }
+</style>
+</head>
+<body>
+
+
+<h1>Homework / Assignment Tracker</h1>
+
+
+<form id="task-form" autocomplete="off">
+  <input type="text" id="task-input" placeholder="Add new task..." required />
+  <select id="subject-select" required>
+    <option value="" disabled selected>Select subject</option>
+    <option>Math</option>
+    <option>English</option>
+    <option>Science</option>
+    <option>History</option>
+    <option value="Other">Other</option>
+  </select>
+  <input type="text" id="custom-subject" placeholder="Enter subject name..." style="display:none;" />
+  <button type="submit">Add</button>
+</form>
+
+
+<div class="filters">
+  <select id="filter-subject">
+    <option value="all">All Subjects</option>
+    <option>Math</option>
+    <option>English</option>
+    <option>Science</option>
+    <option>History</option>
+    <option>Other</option>
+  </select>
+
+
+  <select id="filter-status">
+    <option value="all">All Tasks</option>
+    <option value="active">Incomplete</option>
+    <option value="completed">Completed</option>
+  </select>
+</div>
+
+
+<ul id="task-list"></ul>
+
+
+<script>
+  const taskForm = document.getElementById('task-form');
+  const taskInput = document.getElementById('task-input');
+  const subjectSelect = document.getElementById('subject-select');
+  const customSubjectInput = document.getElementById('custom-subject');
+  const filterSubject = document.getElementById('filter-subject');
+  const filterStatus = document.getElementById('filter-status');
+  const taskList = document.getElementById('task-list');
+
+
+  const defaultSubjects = ['Math', 'English', 'Science', 'History'];
+
+
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+
+  function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+
+
+  function renderTasks() {
+    const subjectFilter = filterSubject.value;
+    const statusFilter = filterStatus.value;
+
+
+    taskList.innerHTML = '';
+
+
+    const filteredTasks = tasks.filter(task => {
+      const isDefault = defaultSubjects.includes(task.subject);
+      const subjectMatch =
+        subjectFilter === 'all' ||
+        (subjectFilter === 'Other' && !isDefault) ||
+        task.subject === subjectFilter;
+
+
+      const statusMatch = statusFilter === 'all' ||
+        (statusFilter === 'completed' && task.completed) ||
+        (statusFilter === 'active' && !task.completed);
+
+
+      return subjectMatch && statusMatch;
+    });
+
+
+    if (filteredTasks.length === 0) {
+      taskList.innerHTML = '<li><em>No tasks found.</em></li>';
+      return;
+    }
+
+
+    filteredTasks.forEach((task, index) => {
+      const li = document.createElement('li');
+      if (task.completed) li.classList.add('completed');
+
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = task.completed;
+      checkbox.addEventListener('change', () => {
+        tasks[index].completed = checkbox.checked;
+        saveTasks();
+        renderTasks();
+      });
+      li.appendChild(checkbox);
+
+
+      const span = document.createElement('span');
+      span.className = 'task-text';
+      span.textContent = task.text;
+      li.appendChild(span);
+
+
+      const subjectLabel = document.createElement('span');
+      subjectLabel.className = 'subject-label';
+      subjectLabel.textContent = task.subject;
+      li.appendChild(subjectLabel);
+
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑';
+      delBtn.title = 'Delete task';
+      delBtn.style.marginLeft = '10px';
+      delBtn.addEventListener('click', () => {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+      });
+      li.appendChild(delBtn);
+
+
+      taskList.appendChild(li);
+    });
+  }
+
+
+  subjectSelect.addEventListener('change', () => {
+    if (subjectSelect.value === 'Other') {
+      customSubjectInput.style.display = 'inline-block';
+      customSubjectInput.required = true;
+    } else {
+      customSubjectInput.style.display = 'none';
+      customSubjectInput.required = false;
+      customSubjectInput.value = '';
+    }
+  });
+
+
+  taskForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = taskInput.value.trim();
+    let subject = subjectSelect.value;
+
+
+    if (subject === 'Other') {
+      subject = customSubjectInput.value.trim();
+      if (!subject) return;
+    }
+
+
+    if (!text || !subject) return;
+
+
+    tasks.push({ text, subject, completed: false });
+    saveTasks();
+    renderTasks();
+
+
+    taskInput.value = '';
+    subjectSelect.value = '';
+    customSubjectInput.style.display = 'none';
+    customSubjectInput.value = '';
+    customSubjectInput.required = false;
+  });
+
+
+  filterSubject.addEventListener('change', renderTasks);
+  filterStatus.addEventListener('change', renderTasks);
+
+
+  renderTasks();
+</script>
+
+
+</body>
+</html>
